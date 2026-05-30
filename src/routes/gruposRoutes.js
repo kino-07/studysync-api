@@ -124,6 +124,6 @@ router.put('/:id', grupoController.update);
  *       404:
  *         description: Grupo no encontrado
  */
-router.delete('/:id', grupoController.eliminar);
+router.delete('/:id', grupoController.remove);
 
 module.exports = router;

@@ -3,108 +3,47 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StudySync — Notificaciones en vivo</title>
+  <title>StudySync — Notificaciones</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f8fafc;
-      color: #1e293b;
-      padding: 30px 20px;
-    }
-
+    body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; padding: 30px 20px; }
     .container { max-width: 760px; margin: 0 auto; }
-
-    header {
-      border-left: 4px solid #2563eb;
-      padding-left: 16px;
-      margin-bottom: 28px;
-    }
+    header { border-left: 4px solid #2563eb; padding-left: 16px; margin-bottom: 28px; }
     header h1 { font-size: 1.5rem; }
     header p  { color: #64748b; font-size: 0.9rem; margin-top: 4px; }
-
-    .status {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 0.8rem; padding: 4px 12px; border-radius: 20px; margin-top: 8px;
-    }
+    .status { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; padding: 4px 12px; border-radius: 20px; margin-top: 8px; }
     .online  { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; }
     .offline { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
     .dot { width: 6px; height: 6px; border-radius: 50%; }
     .dot-green { background: #16a34a; }
     .dot-red   { background: #dc2626; }
-
-    .stats {
-      display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
-    }
-    .stat {
-      background: white; border: 1px solid #e2e8f0; border-radius: 8px;
-      padding: 12px 20px; text-align: center; min-width: 100px;
-    }
+    .stats { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .stat { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 20px; text-align: center; min-width: 100px; }
     .stat-num   { font-size: 1.6rem; font-weight: 700; color: #2563eb; }
-    .stat-label { font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-
-    .section-title {
-      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
-      color: #94a3b8; margin-bottom: 12px;
-    }
-
+    .stat-label { font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; }
+    .section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 12px; }
     #lista { list-style: none; }
-
-    .notif {
-      background: white; border: 1px solid #e2e8f0; border-radius: 8px;
-      padding: 14px 16px; margin-bottom: 10px;
-      border-left: 4px solid #2563eb;
-      animation: fadeIn 0.35s ease;
-    }
-    .notif.SESION_CREADA     { border-left-color: #2563eb; }
-    .notif.USUARIO_UNIDO     { border-left-color: #16a34a; }
-    .notif.MATERIAL_PUBLICADO{ border-left-color: #d97706; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .notif-top {
-      display: flex; justify-content: space-between;
-      align-items: center; margin-bottom: 6px;
-    }
-    .notif-tipo {
-      font-size: 0.8rem; font-weight: 700;
-      padding: 2px 8px; border-radius: 4px;
-    }
-    .tipo-SESION_CREADA     { background: #eff6ff; color: #2563eb; }
-    .tipo-USUARIO_UNIDO     { background: #f0fdf4; color: #16a34a; }
-    .tipo-MATERIAL_PUBLICADO{ background: #fffbeb; color: #d97706; }
-
+    .notif { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; border-left: 4px solid #2563eb; animation: fadeIn 0.35s ease; }
+    .notif.SESION_CREADA      { border-left-color: #2563eb; }
+    .notif.USUARIO_UNIDO      { border-left-color: #16a34a; }
+    .notif.MATERIAL_PUBLICADO { border-left-color: #d97706; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+    .notif-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .notif-tipo { font-size: 0.8rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+    .tipo-SESION_CREADA      { background: #eff6ff; color: #2563eb; }
+    .tipo-USUARIO_UNIDO      { background: #f0fdf4; color: #16a34a; }
+    .tipo-MATERIAL_PUBLICADO { background: #fffbeb; color: #d97706; }
     .notif-hora  { font-size: 0.75rem; color: #94a3b8; }
     .notif-canal { font-family: monospace; font-size: 0.72rem; color: #64748b; margin-bottom: 8px; }
-    .notif-body  {
-      font-size: 0.8rem; color: #475569;
-      background: #f8fafc; padding: 8px 10px;
-      border-radius: 4px; font-family: monospace;
-      white-space: pre-wrap; line-height: 1.5;
-    }
-
-    .empty {
-      text-align: center; padding: 48px 0;
-      color: #94a3b8; font-size: 0.9rem;
-    }
+    .notif-body  { font-size: 0.8rem; color: #475569; background: #f8fafc; padding: 8px 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; }
+    .empty { text-align: center; padding: 48px 0; color: #94a3b8; font-size: 0.9rem; }
     .empty span { font-size: 2rem; display: block; margin-bottom: 8px; }
-
-    .btn-clear {
-      background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
-      font-size: 0.78rem; padding: 4px 12px; border-radius: 6px;
-      cursor: pointer; float: right; margin-top: -4px;
-    }
-    .btn-clear:hover { opacity: 0.8; }
+    .btn-clear { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; font-size: 0.78rem; padding: 4px 12px; border-radius: 6px; cursor: pointer; float: right; }
   </style>
 </head>
 <body>
 <div class="container">
-
   <header>
     <h1>StudySync — Notificaciones en vivo</h1>
     <p>Redis Pub/Sub + Socket.io — Tiempo real sin recargar la página</p>
@@ -114,27 +53,13 @@
     </span>
   </header>
 
-  <!-- Estadísticas -->
   <div class="stats">
-    <div class="stat">
-      <div class="stat-num" id="total">0</div>
-      <div class="stat-label">Total</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" id="cnt-sesion">0</div>
-      <div class="stat-label">Sesiones</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" id="cnt-usuario">0</div>
-      <div class="stat-label">Usuarios</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" id="cnt-material">0</div>
-      <div class="stat-label">Materiales</div>
-    </div>
+    <div class="stat"><div class="stat-num" id="total">0</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-sesion">0</div><div class="stat-label">Sesiones</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-usuario">0</div><div class="stat-label">Usuarios</div></div>
+    <div class="stat"><div class="stat-num" id="cnt-material">0</div><div class="stat-label">Materiales</div></div>
   </div>
 
-  <!-- Lista de notificaciones -->
   <div class="section-title">
     Notificaciones recibidas
     <button class="btn-clear" onclick="limpiar()">Limpiar</button>
@@ -143,11 +68,10 @@
   <ul id="lista">
     <li class="empty" id="empty">
       <span>📡</span>
-      Esperando notificaciones del publicador...<br>
+      Esperando notificaciones...<br>
       <small>Ejecutá <code>node pubsub/publisher.js</code> en otra terminal</small>
     </li>
   </ul>
-
 </div>
 
 <script>
@@ -168,19 +92,14 @@
   });
 
   socket.on('notificacion', (data) => {
-    // Eliminar el mensaje de vacío
     document.getElementById('empty')?.remove();
-
     total++;
     if (contadores[data.tipo] !== undefined) contadores[data.tipo]++;
-
-    // Actualizar contadores
     document.getElementById('total').textContent        = total;
     document.getElementById('cnt-sesion').textContent   = contadores.SESION_CREADA;
     document.getElementById('cnt-usuario').textContent  = contadores.USUARIO_UNIDO;
     document.getElementById('cnt-material').textContent = contadores.MATERIAL_PUBLICADO;
 
-    // Crear la notificación
     const hora = new Date(data.timestamp).toLocaleTimeString('es-BO');
     const li   = document.createElement('li');
     li.className = `notif ${data.tipo}`;
@@ -192,22 +111,15 @@
       <div class="notif-canal">📡 ${data.canal}</div>
       <div class="notif-body">${JSON.stringify(data.payload, null, 2)}</div>
     `;
-
-    // Insertar al inicio de la lista
-    const lista = document.getElementById('lista');
-    lista.insertBefore(li, lista.firstChild);
+    document.getElementById('lista').insertBefore(li, document.getElementById('lista').firstChild);
   });
 
   function limpiar() {
-    document.getElementById('lista').innerHTML =
-      '<li class="empty" id="empty"><span>📡</span>Lista limpiada — esperando nuevos mensajes...</li>';
-    total = 0;
-    contadores.SESION_CREADA = 0;
-    contadores.USUARIO_UNIDO = 0;
-    contadores.MATERIAL_PUBLICADO = 0;
-    document.getElementById('total').textContent        = 0;
-    document.getElementById('cnt-sesion').textContent   = 0;
-    document.getElementById('cnt-usuario').textContent  = 0;
+    document.getElementById('lista').innerHTML = '<li class="empty" id="empty"><span>📡</span>Lista limpiada...</li>';
+    total = 0; contadores.SESION_CREADA = 0; contadores.USUARIO_UNIDO = 0; contadores.MATERIAL_PUBLICADO = 0;
+    document.getElementById('total').textContent = 0;
+    document.getElementById('cnt-sesion').textContent = 0;
+    document.getElementById('cnt-usuario').textContent = 0;
     document.getElementById('cnt-material').textContent = 0;
   }
 </script>

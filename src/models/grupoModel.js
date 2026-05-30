@@ -1,35 +1,54 @@
-// Base de datos en memoria (arreglo)
-let grupos = [
-  { id: 1, nombre: "Grupo Algoritmos", materia: "Programación IV", turno: "mañana", activo: true },
-  { id: 2, nombre: "Grupo Redes",      materia: "Redes I",          turno: "tarde",  activo: true }
-];
-
-let nextId = 3;
+const prisma = require('../prismaClient');
 
 const GrupoModel = {
-  getAll: () => grupos,
 
-  getById: (id) => grupos.find(g => g.id === id),
-
-  create: (data) => {
-    const nuevo = { id: nextId++, ...data };
-    grupos.push(nuevo);
-    return nuevo;
+  getAll: async () => {
+    return await prisma.grupo.findMany({
+      orderBy: { creadoEn: 'desc' }
+    });
   },
 
-  update: (id, data) => {
-    const index = grupos.findIndex(g => g.id === id);
-    if (index === -1) return null;
-    grupos[index] = { id, ...data };
-    return grupos[index];
+  getById: async (id) => {
+    return await prisma.grupo.findUnique({
+      where: { id }
+    });
   },
 
-  delete: (id) => {
-    const index = grupos.findIndex(g => g.id === id);
-    if (index === -1) return null;
-    const eliminado = grupos[index];
-    grupos.splice(index, 1);
-    return eliminado;
+  create: async (data) => {
+    return await prisma.grupo.create({
+      data: {
+        nombre:  data.nombre,
+        materia: data.materia,
+        turno:   data.turno,
+        activo:  data.activo ?? true
+      }
+    });
+  },
+
+  update: async (id, data) => {
+    try {
+      return await prisma.grupo.update({
+        where: { id },
+        data: {
+          nombre:  data.nombre,
+          materia: data.materia,
+          turno:   data.turno,
+          activo:  data.activo
+        }
+      });
+    } catch {
+      return null;
+    }
+  },
+
+  delete: async (id) => {
+    try {
+      return await prisma.grupo.delete({
+        where: { id }
+      });
+    } catch {
+      return null;
+    }
   }
 };
 
