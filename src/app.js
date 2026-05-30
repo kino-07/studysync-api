@@ -1,18 +1,22 @@
-const express = require('express');
+const express      = require('express');
+const path         = require('path');
+const swaggerUi    = require('swagger-ui-express');   // ← agregar
+const swaggerSpec  = require('./swagger');             // ← agregar
 const app = express();
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
 
-// Rutas
-const gruposRoutes = require('./routes/gruposRoutes');
-app.use('/api/grupos', gruposRoutes);
+// Swagger — documentación interactiva
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // ← agregar
 
-// Ruta raíz para verificar que la API vive
+const grupoRoutes = require('./routes/gruposRoutes');
+app.use('/api/grupos', grupoRoutes);
+
 app.get('/', (req, res) => {
-  res.json({ mensaje: 'StudySync API funcionando ✅', version: '1.0.0' });
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Middleware de errores global
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ ok: false, mensaje: 'Error interno del servidor' });
